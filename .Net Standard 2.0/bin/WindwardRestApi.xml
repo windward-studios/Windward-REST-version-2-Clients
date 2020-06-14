@@ -1,0 +1,1848 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WindwardRestApi</name>
+    </assembly>
+    <members>
+        <member name="T:WindwardRestApi.src.Api.ApiException">
+            <summary>
+            Any error that is in the client side of this system. This includes unexpected return codes on a call.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ApiException.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class.</summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ApiException.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class with a specified error message.</summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ApiException.#ctor(System.String,System.Exception)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.</summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ApiException.#ctor(System.Net.HttpStatusCode)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class.</summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ApiException.#ctor(System.String,System.Net.HttpStatusCode)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class with a specified error message.</summary>
+            <param name="message">The message that describes the error.</param>
+            <param name="statusCode">The unexpected HTTP status code returned on a call.</param>
+        </member>
+        <member name="P:WindwardRestApi.src.Api.ApiException.StatusCode">
+            <summary>
+            The unexpected HTTP status code returned on a call.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Api.ServerException">
+            <summary>
+            Any error returned from the server.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ServerException.#ctor(System.Net.HttpStatusCode,WindwardRestApi.src.Model.ServiceError)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class.</summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.ServerException.#ctor(WindwardRestApi.src.Model.ServiceError)">
+            <summary>Initializes a new instance of the <see cref="T:System.Exception"></see> class. For inner exceptions.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Api.ServerException.StatusCode">
+            <summary>
+            The unexpected HTTP status code returned on the call.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Api.ServerException.Type">
+            <summary>
+            The server side exception type.
+            </summary>
+            <value>The exception type.</value>
+        </member>
+        <member name="T:WindwardRestApi.src.Api.WindwardClient">
+             <summary>
+             All calls to the Windward RESTful Engine are made by this object. All calls are async. In addition all operations
+             performed by the RESTful engine are async too so for most calls you will make a call to submit a job, then make call(s)
+             to get the status of the job, then a call to get the results of the job, and finally a call to delete the job.<br/>
+             
+             On an error at the server end, the error will be returned by this client's call throwing an exception.<br/>
+            
+             Create a singleton on this object and reuse it. <b>Do not put it in a using(...) or create/dispose of it regularly.</b>
+             This wraps an HttpClient and while HttpClient is disposable (and therefore this class is), you will burn up connections
+             and other resources with that approach. This object can be used concurrently and is thread safe.<br/>
+            
+             This class uses log4net, but does not initialize it. It assumes you have initialized it in the manner you prefer.
+             </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Api.WindwardClient.HEADER_LICENSE">
+            <summary>
+            Key to license setting in the header.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Api.WindwardClient.client">
+            <summary>
+            The HttpClient this object will use for all calls to the RESTful Engine.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Api.WindwardClient.ourClient">
+            <summary>
+            true if we created the client object. false if passed in.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.#ctor(System.Uri)">
+            <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+            <param name="baseUri">The base address of Uniform Resource Identifier (URI) of the Internet resource used when sending
+            requests. <b>The uri must end with a /.</b></param>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.#ctor(System.Net.Http.HttpClient)">
+            <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+            <param name="client">The HttpClient this object will use for all calls to the RESTful Engine. Set client.BaseAddress before
+            passing this in. <b>The BaseAddress uri must end with a /.</b> We will not dispose the passed in client object when this
+            object is disposed.<br/>
+            Set Accept and Content-Type to JSON.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.Dispose">
+            <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.<br/>
+            Create a singleton of this object, you should only be disposing it when your application exits. We will not dispose the HttpClient
+            object when this object is disposed if it was passed to this object in the constructor.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Api.WindwardClient.LicenseKey">
+            <summary>
+            Set the license key to use for request(s) made by this client. Set to null to use the REST engine's license.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetVersion">
+            <summary>
+            Performs a GET to return the version of the RESTful server.
+            </summary>
+            <returns>The version of the RESTful server and its underlying engine.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.PostDocument(WindwardRestApi.src.Model.Template)">
+            <summary>
+            Post an async request to generate a document. This method completes when the request has been accepted by the RESTful engine.
+            The only valid values in the returned Document are the Guid and Tag.
+            </summary>
+            <param name="template">The template to parse for the document.</param>
+            <returns>The Guid of this requested job.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetDocumentStatus(System.String)">
+            <summary>
+            Get the status for this pending document job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: Created (201) the job is in process, Accepted (202), the job is pending, Found (302) the job
+            is complete and can be read, NotFound (404) this job does not exist, and InternalServerError (500) something broke, which
+            includes an invalid request.<br/>
+            You can GET (read) the result if it returns a Found or InternalServerError. For the InternalServerError case the GET will
+            throw an exception with the relevant error information.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetDocument(System.String)">
+            <summary>
+            Get this completed job. Will throw a ServerException if the job failed for some reason.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>The document from the submitted template.</returns>
+            <exception cref="T:WindwardRestApi.src.Api.ServerException">If an error occured in the RESTful engine generating this document, the error
+            information will be in this exception.</exception>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.DeleteDocument(System.String)">
+            <summary>
+            Delete this document job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: OK (200) the job is deleted, NotFound (404) this job does not exist, and
+            InternalServerError (500) something broke.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.PostMetrics(WindwardRestApi.src.Model.Template)">
+            <summary>
+            Post an async request to generate the metrics. This method completes when the request has been accepted by the RESTful engine.
+            The only valid values in the returned Metrics are the Guid and Tag.
+            </summary>
+            <param name="template">The template to parse for the metrics.</param>
+            <returns>The Guid of this requested job.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetMetricsStatus(System.String)">
+            <summary>
+            Get the status for this pending metrics job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: Created (201) the job is in process, Accepted (202), the job is pending, Found (302) the job
+            is complete and can be read, NotFound (404) this job does not exist, and InternalServerError (500) something broke, which
+            includes an invalid request.<br/>
+            You can GET (read) the result if it returns a Found or InternalServerError. For the InternalServerError case the GET will
+            throw an exception with the relevant error information.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetMetrics(System.String)">
+            <summary>
+            Get this completed job. Will throw a ServerException if the job failed for some reason.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>The metrics from the submitted template.</returns>
+            <exception cref="T:WindwardRestApi.src.Api.ServerException">If an error occured in the RESTful engine generating this metrics, the error
+            information will be in this exception.</exception>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.DeleteMetrics(System.String)">
+            <summary>
+            Delete this metrics job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: OK (200) the job is deleted, NotFound (404) this job does not exist, and
+            InternalServerError (500) something broke.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.PostTagTree(WindwardRestApi.src.Model.Template)">
+            <summary>
+            Post an async request to generate a tag tree. This method completes when the request has been accepted by the RESTful engine.
+            The only valid values in the returned TagTree are the Guid and Tag.
+            </summary>
+            <param name="template">The template to parse for the tag tree.</param>
+            <returns>The Guid of this requested job.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetTagTreeStatus(System.String)">
+            <summary>
+            Get the status for this pending tagtree job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: Created (201) the job is in process, Accepted (202), the job is pending, Found (302) the job
+            is complete and can be read, NotFound (404) this job does not exist, and InternalServerError (500) something broke, which
+            includes an invalid request.<br/>
+            You can GET (read) the result if it returns a Found or InternalServerError. For the InternalServerError case the GET will
+            throw an exception with the relevant error information.</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.GetTagTree(System.String)">
+            <summary>
+            Get this completed job. Will throw a ServerException if the job failed for some reason.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>The tag tree from the submitted template.</returns>
+            <exception cref="T:WindwardRestApi.src.Api.ServerException">If an error occured in the RESTful engine generating this tagtree, the error
+            information will be in this exception.</exception>
+        </member>
+        <member name="M:WindwardRestApi.src.Api.WindwardClient.DeleteTagTree(System.String)">
+            <summary>
+            Delete this tagtree job.
+            </summary>
+            <param name="guid">The job id.</param>
+            <returns>It will return one of: OK (200) the job is deleted, NotFound (404) this job does not exist, and
+            InternalServerError (500) something broke.</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSet">
+            <summary>
+            A dataset that is part of a datasource. This is a member of this dataset&#39;s parent datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSet" /> class.
+            </summary>
+            <param name="name">The dataset name. Used as the datasource name when applying to a template..</param>
+            <param name="query">The query that defines the dataset. This query is run against the parent&#39;s datasource..</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSet.Name">
+            <summary>
+            The dataset name. Used as the datasource name when applying to a template.
+            </summary>
+            <value>The dataset name. Used as the datasource name when applying to a template.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSet.Query">
+            <summary>
+            The query that defines the dataset. This query is run against the parent&#39;s datasource.
+            </summary>
+            <value>The query that defines the dataset. This query is run against the parent&#39;s datasource.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.Equals(WindwardRestApi.src.Model.DataSet)">
+            <summary>
+            Returns true if DataSet instances are equal
+            </summary>
+            <param name="input">Instance of DataSet to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSet.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSetProfile">
+            <summary>
+            The full profile of a dataset. Returned as part of a template&#39;s metrics.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSetProfile.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class. This will create an empty
+            (non null) Properties list.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSetProfile.Name">
+            <summary>
+            The name used to reference this dataset.
+            </summary>
+            <value>The name used to reference this dataset.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSetProfile.Select">
+            <summary>
+            The select of this dataset.
+            </summary>
+            <value>The select of this dataset.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSetProfile.Properties">
+            <summary>
+            All information defining this dataset as a collection of properties. This may be empty, but it will never be null.
+            </summary>
+            <value>All information defining this dataset as a collection of properties.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSetProfile.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSetProfile.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSetProfile.Equals(WindwardRestApi.src.Model.DataSetProfile)">
+            <summary>
+            Returns true if DataSetProfile instances are equal
+            </summary>
+            <param name="input">Instance of DataSetProfile to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSetProfile.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSource">
+            <summary>
+            A datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSource.TypeEnum">
+            <summary>
+            A type of this data source.
+            </summary>
+            <value>A type of this data source.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Sql">
+            <summary>
+            A SQL (ADO.NET) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Xml">
+            <summary>
+            An XML 1.0 (.Net Library) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Xml2">
+            <summary>
+            An XML 2.0 (Saxon) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Json">
+            <summary>
+            A JPath (JsonPath) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Odata">
+            <summary>
+            An OData DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Salesforce">
+            <summary>
+            A Salesforce DataSource connecting via Salesforce credentials.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSource.TypeEnum.Salesforceoauth">
+            <summary>
+            A Salesforce DataSource connecting via Salesforce OAuth2.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.#ctor(System.String,WindwardRestApi.src.Model.DataSource.TypeEnum,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="type">A type of this data source.</param>
+            <param name="className">The ADO.NET connector classname. null for other types.</param>
+            <param name="connectionString">The connection string to the datasource.</param>
+            <param name="schemaConnectionString">The connection string to the XSD file (XML only).</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.#ctor(System.String,WindwardRestApi.src.Model.DataSource.TypeEnum,System.Byte[],System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when passing up the datasource file(s).
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="type">A type of this data source.</param>
+            <param name="data">The JSON or XML file.</param>
+            <param name="schemaData">The XSD file.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.Name">
+            <summary>
+            The datasource name which maps to the datasource attribute in tags.
+            </summary>
+            <value>The datasource name which maps to the datasource attribute in tags.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.Type">
+            <summary>
+            A type of this data source.
+            </summary>
+            <value>A type of this data source.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.ClassName">
+            <summary>
+            The ADO.NET connector classname. null for other types.
+            </summary>
+            <value>The ADO.NET connector classname. null for other types.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.ConnectionString">
+            <summary>
+            The connection string to the datasource. null if passing in the Data property.
+            </summary>
+            <value>The connection string to the datasource. null if passing in the Data property.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.SchemaConnectionString">
+            <summary>
+            If an XSD file is used with your XML data source use this or SchemaData. Location of external XSD file.
+            </summary>
+            <value>If an XSD file is used with your XML data source use this or SchemaData. Location of external XSD file.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.Data">
+            <summary>
+            The actual data (JSON and XML only). Used when passing up the datasource as the actual data file. null if passing in the ConnectionString property.
+            </summary>
+            <value>The actual data (JSON and XML only). Used when passing up the datasource as the actual data file. null if passing in the ConnectionString property.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.SchemaData">
+            <summary>
+            If an XSD file is used with your XML data source use this or SchemaUri. This is the schema file.
+            </summary>
+            <value>If an XSD file is used with your XML data source use this or SchemaUri. Embed the XSD file as a byte array.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSource.Datasets">
+            <summary>
+            The datasets created on this datasource.
+            </summary>
+            <value>The datasets created on this datasource.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.Equals(WindwardRestApi.src.Model.DataSource)">
+            <summary>
+            Returns true if Datasource instances are equal
+            </summary>
+            <param name="input">Instance of Datasource to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSource.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSourceProfile">
+            <summary>
+            The full profile of a datasource. Returned as part of a template&#39;s metrics.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum">
+            <summary>
+            The datasource vendor type.
+            </summary>
+            <value>The datasource vendor type.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Json">
+            <summary>
+            A JPath (JsonPath) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Odata">
+            <summary>
+            An OData DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Salesforce">
+            <summary>
+            A Salesforce DataSource connecting via Salesforce credentials.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Sql">
+            <summary>
+            A SQL (ADO.NET) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Xml">
+            <summary>
+            An XML 1.0 (.Net Library) DataSource.
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.DataSourceProfile.VendorTypeEnum.Xml2">
+            <summary>
+            An XML 2.0 (Saxon) DataSource.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSourceProfile.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSourceProfile" /> class.
+            This object is only created by the deserializer.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSourceProfile.VendorType">
+            <summary>
+            The datasource vendor type.
+            </summary>
+            <value>The datasource vendor type.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSourceProfile.Name">
+            <summary>
+            The name used to reference this datasource.
+            </summary>
+            <value>The name used to reference this datasource.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSourceProfile.RootPath">
+            <summary>
+            The root path set for any relative files accessed by this datasource.
+            </summary>
+            <value>The root path set for any relative files accessed by this datasource.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSourceProfile.Properties">
+            <summary>
+            All information defining this dataset as a collection of properties.
+            </summary>
+            <value>All information defining this dataset as a collection of properties.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.DataSourceProfile.Datasets">
+            <summary>
+            The datasets for this datasource.
+            </summary>
+            <value>The datasets for this datasource.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSourceProfile.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSourceProfile.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSourceProfile.Equals(WindwardRestApi.src.Model.DataSourceProfile)">
+            <summary>
+            Returns true if DataSourceProfile instances are equal
+            </summary>
+            <param name="input">Instance of DataSourceProfile to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.DataSourceProfile.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Document">
+            <summary>
+            A generated document. Also used as a pending document generation job where just the Guid and Tag property are set.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Document.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Document" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.Guid">
+            <summary>
+            The unique identifier for this request.
+            </summary>
+            <value>The unique identifier for this request.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.Data">
+            <summary>
+            The generated report as a single file in the user specified format. If this is populated Pages will be null.
+            </summary>
+            <value>The generated report as a single file in the user specified format. If this is populated Pages will be null.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.Pages">
+            <summary>
+            The generated report as a distinct file per page in the user specified format. If this is populated Data will be null. This is produced by the image report generator and by the HTML report generator when it is in per page mode.
+            </summary>
+            <value>The generated report as a distinct file per page in the user specified format. If this is populated Data will be null. This is produced by the image report generator and by the HTML report generator when it is in per page mode.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.NumberOfPages">
+            <summary>
+            The number of pages in the generated document.
+            </summary>
+            <value>The number of pages in the generated document.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.Tag">
+            <summary>
+            Anything you want. This is passed in to the repository &amp; job handlers and is set in the final generated Report object. The RESTful engine ignores this setting, it is for the caller&#39;s use.
+            </summary>
+            <value>Anything you want. This is passed in to the repository &amp; job handlers and is set in the final generated Report object. The RESTful engine ignores this setting, it is for the caller&#39;s use.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.ImportInfo">
+            <summary>
+            The info on each import processed generating the document. The list is populating only if the ImportInfo enabled.
+            </summary>
+            <value>The info on each import processed generating the document. The list is populating only if the ImportInfo enabled.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Document.Errors">
+            <summary>
+            Contains a list of issues (errors and warnings) found during the report generation. The list is populating only if the error handling and verify is enabled.
+            </summary>
+            <value>Contains a list of issues (errors and warnings) found during the report generation. The list is populating only if the error handling and verify is enabled.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Document.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Document.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Document.Equals(WindwardRestApi.src.Model.Document)">
+            <summary>
+            Returns true if Report instances are equal
+            </summary>
+            <param name="input">Instance of Report to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Document.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Entry">
+            <summary>
+            A key value pair used in the data returned from the TagTree and Metrics for properties.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Entry.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Entry" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Entry.Key">
+            <summary>
+            The key (name) of the property.
+            </summary>
+            <value>The key (name) of the property.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Entry.Value">
+            <summary>
+            The value of the property.
+            </summary>
+            <value>The value of the property.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Entry.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Entry.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Entry.Equals(WindwardRestApi.src.Model.Entry)">
+            <summary>
+            Returns true if Entry instances are equal
+            </summary>
+            <param name="input">Instance of Entry to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Entry.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.ImportMetrics">
+            <summary>
+            The info about an import processed generating the document.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ImportMetrics.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.ImportMetrics" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ImportMetrics.Type">
+            <summary>
+            The type of imported file.
+            </summary>
+            <value>The type of imported file.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ImportMetrics.Tag">
+            <summary>
+            The full import tag that imports this file.
+            </summary>
+            <value>The full import tag that imports this file.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ImportMetrics.Filename">
+            <summary>
+            The filename of the file imported.
+            </summary>
+            <value>The filename of the file imported.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ImportMetrics.Children">
+            <summary>
+            The child imports of this imported template.
+            </summary>
+            <value>The child imports of this imported template.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ImportMetrics.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ImportMetrics.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ImportMetrics.Equals(WindwardRestApi.src.Model.ImportMetrics)">
+            <summary>
+            Returns true if ImportMetrics instances are equal
+            </summary>
+            <param name="input">Instance of ImportMetrics to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ImportMetrics.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Issue">
+            <summary>
+            An issue found during the report generation.  Issues are creating if the error handling and verify functionality is enabled. The issue represents an error or a warning.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Issue.IssueTypeEnum">
+            <summary>
+            The .Net engine Issue.IssueType.
+            </summary>
+            <value>The .Net engine Issue.IssueType.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.Type">
+            <summary>
+            Enum Type for value: Type
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.Formatting">
+            <summary>
+            Enum Formatting for value: Formatting
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.Select">
+            <summary>
+            Enum Select for value: Select
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.NodeDoesNotExist">
+            <summary>
+            Enum NodeDoesNotExist for value: NodeDoesNotExist
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.NodeNull">
+            <summary>
+            Enum NodeNull for value: NodeNull
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Issue.IssueTypeEnum.Verify">
+            <summary>
+            Enum Verify for value: Verify
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Issue.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Issue" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Issue.IssueType">
+            <summary>
+            The .Net engine Issue.IssueType.
+            </summary>
+            <value>The .Net engine Issue.IssueType.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Issue.Message">
+            <summary>
+            A textual description of this issue.
+            </summary>
+            <value>A textual description of this issue.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Issue.IsError">
+            <summary>
+            True if this issue is an error.
+            </summary>
+            <value>True if this issue is an error.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Issue.IsWarning">
+            <summary>
+            True if this issue is a warning.
+            </summary>
+            <value>True if this issue is a warning.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Issue.Tag">
+            <summary>
+            The tag that led to this issue. This is the tag from the source template.
+            </summary>
+            <value>The tag that led to this issue. This is the tag from the source template.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Issue.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Issue.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Issue.Equals(WindwardRestApi.src.Model.Issue)">
+            <summary>
+            Returns true if Issue instances are equal
+            </summary>
+            <param name="input">Instance of Issue to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Issue.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.JsonDataSource">
+            <summary>
+            A JSON datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.JsonDataSource.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the JSON file.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.JsonDataSource.#ctor(System.String,System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when passing up the JSON file.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="data">The JSON file.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Metrics">
+            <summary>
+            The metrics from a template. This is the metadata stored in the template and within the tags.  Also used as a pending metrics job
+            where just the Guid and Tag property are set.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum">
+            <summary>
+            The format of the template as a .Net Engine Report.TEMPLATE_TYPE.
+            </summary>
+            <value>The format of the template as a .Net Engine Report.TEMPLATE_TYPE.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.UNKNOWN">
+            <summary>
+            Enum UNKNOWN for value: UNKNOWN
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.DOCX">
+            <summary>
+            Enum DOCX for value: DOCX
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.DOCM">
+            <summary>
+            Enum DOCM for value: DOCM
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.HTML">
+            <summary>
+            Enum HTML for value: HTML
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.PPTX">
+            <summary>
+            Enum PPTX for value: PPTX
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.PPTM">
+            <summary>
+            Enum PPTM for value: PPTM
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.XLSX">
+            <summary>
+            Enum XLSX for value: XLSX
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Metrics.TemplateTypeEnum.XLSM">
+            <summary>
+            Enum XLSM for value: XLSM
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Metrics.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Metrics" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.TemplateType">
+            <summary>
+            The format of the template as a .Net Engine Report.TEMPLATE_TYPE.
+            </summary>
+            <value>The format of the template as a .Net Engine Report.TEMPLATE_TYPE.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.Guid">
+            <summary>
+            The guid of this async job.
+            </summary>
+            <value>The guid of this async job.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.Tag">
+            <summary>
+            Anything you want. This is passed from the Template to the repository &amp; job handlers and is set in this final generated Metrics object. The RESTful engine ignores this setting, it is for the caller&#39;s use.
+            </summary>
+            <value>Anything you want. This is passed from the Template to the repository &amp; job handlers and is set in this final generated Metrics object. The RESTful engine ignores this setting, it is for the caller&#39;s use.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.Datasources">
+            <summary>
+            All datasources that must be processed for this template.
+            </summary>
+            <value>All datasources that must be processed for this template.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.Vars">
+            <summary>
+            All vars that must be defined by a caller in the template.
+            </summary>
+            <value>All vars that must be defined by a caller in the template.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.Variables">
+            <summary>
+            All of the template variables defined in the metadata.
+            </summary>
+            <value>All of the template variables defined in the metadata.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.DatasourceProfiles">
+            <summary>
+            The child imports of this imported template.
+            </summary>
+            <value>The child imports of this imported template.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Metrics.AutotagVersion">
+            <summary>
+            The version of the metadata. null if no metadata.
+            </summary>
+            <value>The version of the metadata. null if no metadata.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Metrics.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Metrics.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Metrics.Equals(WindwardRestApi.src.Model.Metrics)">
+            <summary>
+            Returns true if Metrics instances are equal
+            </summary>
+            <param name="input">Instance of Metrics to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Metrics.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.ODataDataSource">
+            <summary>
+            An OData datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ODataDataSource.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the datasource.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Parameter">
+            <summary>
+            A parameter passed to the engine to be referenced using a ${var}.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.#ctor(System.String,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Property" /> class.
+            </summary>
+            <param name="name">The name of the property..</param>
+            <param name="value">The value of the property..</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Property" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Parameter.Name">
+            <summary>
+            Name of the parameter (the var in ${var}).
+            </summary>
+            <value>Name of the parameter (the var in ${var}).</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Parameter.Value">
+            <summary>
+            The Value of the parameter.
+            </summary>
+            <value>The Value of the parameter.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.Equals(WindwardRestApi.src.Model.Parameter)">
+            <summary>
+            Returns true if Property instances are equal
+            </summary>
+            <param name="input">Instance of Property to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Parameter.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Property">
+            <summary>
+            A property set at the report level.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Property" /> class.
+            </summary>
+            <param name="name">The name of the property..</param>
+            <param name="value">The value of the property..</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Property" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Property.Name">
+            <summary>
+            The name of the property.
+            </summary>
+            <value>The name of the property.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Property.Value">
+            <summary>
+            The value of the property.
+            </summary>
+            <value>The value of the property.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.Equals(WindwardRestApi.src.Model.Property)">
+            <summary>
+            Returns true if Property instances are equal
+            </summary>
+            <param name="input">Instance of Property to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Property.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.SalesforceDataSource">
+            <summary>
+            A Salesforce datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.SalesforceDataSource.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the datasource.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.SalesforceOAuthDataSource">
+            <summary>
+            A Salesforce OAuth datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.SalesforceOAuthDataSource.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the datasource.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.ServiceError">
+            <summary>
+            An exception that occured attempting to execute a request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ServiceError.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ServiceError.Message">
+            <summary>
+            The exception message.
+            </summary>
+            <value>The exception message.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ServiceError.Type">
+            <summary>
+            The exception type.
+            </summary>
+            <value>The exception type.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ServiceError.InnerError">
+            <summary>
+            Gets or Sets InnerError
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ServiceError.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ServiceError.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ServiceError.Equals(WindwardRestApi.src.Model.ServiceError)">
+            <summary>
+            Returns true if ServiceError instances are equal
+            </summary>
+            <param name="input">Instance of ServiceError to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ServiceError.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.SqlDataSource">
+            <summary>
+            A SQL datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.SqlDataSource.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the datasource.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="className">The ADO.NET connector classname. null for other types.</param>
+            <param name="connectionString">The connection string to the datasource.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.TagTree">
+            <summary>
+            The generated tag tree we are sending back to the client.  Also used as a pending tagtree job where just the Guid
+            and Tag property are set.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.TagTree.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.TagTree.Guid">
+            <summary>
+            The guid of this async job.
+            </summary>
+            <value>The guid of this async job.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.TagTree.Tag">
+            <summary>
+            Anything you want. This is set in the Template and passed in to the repository &amp; job handlers and is set in the
+            final generated TagTree object. The RESTful engine ignores this setting, it is for the caller&#39;s use.
+            </summary>
+            <value>Anything you want. This is set in the Template and passed in to the repository &amp; job handlers and is set
+            in the final generated TagTree object. The RESTful engine ignores this setting, it is for the caller&#39;s use.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.TagTree.Xml">
+            <summary>
+            The tag tree which is an XML document.
+            </summary>
+            <value>The tag tree which is an XML document.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.TagTree.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.TagTree.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.TagTree.Equals(WindwardRestApi.src.Model.TagTree)">
+            <summary>
+            Returns true if TagTree instances are equal
+            </summary>
+            <param name="input">Instance of TagTree to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.TagTree.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Template">
+            <summary>
+            Template
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Template.OutputFormatEnum">
+            <summary>
+            Generate the report in the provided format.
+            </summary>
+            <value>Generate the report in the provided format.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Pdf">
+            <summary>
+            Enum Pdf for value: pdf
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Docx">
+            <summary>
+            Enum Docx for value: docx
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Xlsx">
+            <summary>
+            Enum Xlsx for value: xlsx
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Pptx">
+            <summary>
+            Enum Pptx for value: pptx
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Html">
+            <summary>
+            Enum Html for value: html
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Prn">
+            <summary>
+            Enum Prn for value: prn
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Csv">
+            <summary>
+            Enum Csv for value: csv
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Rtf">
+            <summary>
+            Enum Rtf for value: rtf
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Jpg">
+            <summary>
+            Enum Jpg for value: jpg
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Png">
+            <summary>
+            Enum Png for value: png
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Svg">
+            <summary>
+            Enum Svg for value: svg
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Eps">
+            <summary>
+            Enum Eps for value: eps
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Bmp">
+            <summary>
+            Enum Bmp for value: bmp
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.OutputFormatEnum.Gif">
+            <summary>
+            Enum Gif for value: gif
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Template.FormatEnum">
+            <summary>
+            Format of the template. Auto-determined if not provided.
+            </summary>
+            <value>Format of the template. Auto-determined if not provided.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.FormatEnum.Docx">
+            <summary>
+            Enum Docx for value: docx
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.FormatEnum.Html">
+            <summary>
+            Enum Html for value: html
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.FormatEnum.Xlsx">
+            <summary>
+            Enum Xlsx for value: xlsx
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.Template.FormatEnum.Pptx">
+            <summary>
+            Enum Pptx for value: pptx
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.#ctor(WindwardRestApi.src.Model.Template.OutputFormatEnum,System.String,WindwardRestApi.src.Model.Template.FormatEnum)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class.
+            </summary>
+            <param name="outputFormat">Generate the report in the provided format.</param>
+            <param name="uri">Set this to provide the template as a connection string of the template's location.</param>
+            <param name="format">Format of the template. Auto-determined if not provided.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.#ctor(WindwardRestApi.src.Model.Template.OutputFormatEnum,System.Byte[],WindwardRestApi.src.Model.Template.FormatEnum)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class.
+            </summary>
+            <param name="outputFormat">Generate the report in the provided format.</param>
+            <param name="data">The template file contents.</param>
+            <param name="format">Format of the template. Auto-determined if not provided.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.#ctor(System.String,WindwardRestApi.src.Model.Template.FormatEnum)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class. For use to get metrics and the tag tree.
+            </summary>
+            <param name="uri">Set this to provide the template as a connection string of the template&#39;s location..</param>
+            <param name="format">Format of the template. Auto-determined if not provided.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.#ctor(System.Byte[],WindwardRestApi.src.Model.Template.FormatEnum)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class. For use to get metrics and the tag tree.
+            </summary>
+            <param name="data">The source of the template- embedded or external. The file contents.</param>
+            <param name="format">Format of the template. Auto-determined if not provided.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object"></see> class.</summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Callback">
+            <summary>
+            If set, this url will be called with a POST when a job completes. If the text "{guid}" is in the url, that text will
+            be replaced with the Guid for the callback.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.OutputFormat">
+            <summary>
+            Generate the report in the provided format.
+            </summary>
+            <value>Generate the report in the provided format.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Format">
+            <summary>
+            Format of the template. Auto-determined if not provided.
+            </summary>
+            <value>Format of the template. Auto-determined if not provided.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Data">
+            <summary>
+            The template passed up in the request. The file contents.
+            </summary>
+            <value>The template passed up in the request.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Uri">
+            <summary>
+            Set this to provide the template as a connection string of the template's location.
+            </summary>
+            <value>Set this to provide the template as a connection string of the template&#39;s location.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Properties">
+            <summary>
+            Windward properties for this report. These override any properties set in the configuration file on the server side.
+            </summary>
+            <value>Windward properties for this report. These override any properties set in the configuration file on the server side.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Parameters">
+            <summary>
+            A set of input parameters for this report. The parameters are global and shared among all data sources.
+            </summary>
+            <value>A set of input parameters for this report. The parameters are global and shared among all data sources.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Datasources">
+            <summary>
+            The datasources to apply to the template. The datasources are applied simultaneously.
+            </summary>
+            <value>The datasources to apply to the template. The datasources are applied simultaneously.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.Tag">
+            <summary>
+            Anything you want. This is passed in to the repository &amp; job handlers and is set in the final generated Report object. The RESTful engine ignores this setting, it is for the caller&#39;s use.
+            </summary>
+            <value>Anything you want. This is passed in to the repository &amp; job handlers and is set in the final generated Report object. The RESTful engine ignores this setting, it is for the caller&#39;s use.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.TrackImports">
+            <summary>
+            Return all imports with the generated document.
+            </summary>
+            <value>Return all imports with the generated document.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.TrackErrors">
+            <summary>
+            Enable or disable the error handling and verify functionality.
+            </summary>
+            <value>Enable or disable the error handling and verify functionality.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.MainPrinter">
+            <summary>
+            If you are using printer output use to specify main printer. Printer must be recognized by Network
+            </summary>
+            <value>If you are using printer output use to specify main printer. Printer must be recognized by Network</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.FirstPagePrinter">
+            <summary>
+            Set first page printer if main printer is already set
+            </summary>
+            <value>Set first page printer if main printer is already set</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.PrinterJobName">
+            <summary>
+            Assign print job name
+            </summary>
+            <value>Assign print job name</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.PrintCopies">
+            <summary>
+            Set number of copies to print
+            </summary>
+            <value>Set number of copies to print</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Template.PrintDuplex">
+            <summary>
+            Selects the printer duplex mode.  Only if supported by the printer.
+            </summary>
+            <value>Selects the printer duplex mode.  Only if supported by the printer.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.Equals(WindwardRestApi.src.Model.Template)">
+            <summary>
+            Returns true if Template instances are equal
+            </summary>
+            <param name="input">Instance of Template to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Template.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Variable">
+            <summary>
+            A var in a template that must be defined before running it.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Variable.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Variable" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Name">
+            <summary>
+            The name of the variable.
+            </summary>
+            <value>The name of the variable.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Description">
+            <summary>
+            The default value of the variable, null if undefined.
+            </summary>
+            <value>The default value of the variable, null if undefined.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Type">
+            <summary>
+            The type of variable given in Value.
+            </summary>
+            <value>The type of variable given in Value.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Required">
+            <summary>
+            true if the variable is required for the template to generate.
+            </summary>
+            <value>true if the variable is required for the template to generate.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AllowAll">
+            <summary>
+            Can return all values for this select variable.
+            </summary>
+            <value>Can return all values for this select variable.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AllowList">
+            <summary>
+            Can return a list of values for this select variable.
+            </summary>
+            <value>Can return a list of values for this select variable.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AllowFilter">
+            <summary>
+            Can set a filter for values for this select variable.
+            </summary>
+            <value>Can set a filter for values for this select variable.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AllowSort">
+            <summary>
+            Can sort values for this select variable.
+            </summary>
+            <value>Can sort values for this select variable.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AutoMetadata">
+            <summary>
+            If this is an auto-select, this is the metadata for the select. For SQL this is [dbo.]table.column using the raw values (no surrounding spaces) and for XML it is the full XPath to that node.
+            </summary>
+            <value>If this is an auto-select, this is the metadata for the select. For SQL this is [dbo.]table.column using the raw values (no surrounding spaces) and for XML it is the full XPath to that node.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.DefaultValues">
+            <summary>
+            The default values for this var. Can be length 0 (which means no default).
+            </summary>
+            <value>The default values for this var. Can be length 0 (which means no default).</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.AllowedValues">
+            <summary>
+            The allowed values for this var. Can be length 0 (which means anything is allowed OR the list was too long).
+            </summary>
+            <value>The allowed values for this var. Can be length 0 (which means anything is allowed OR the list was too long).</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Datasource">
+            <summary>
+            The name of the datasource for the select.
+            </summary>
+            <value>The name of the datasource for the select.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.CalOffset">
+            <summary>
+            The date default value can be set to a calendar offset.
+            </summary>
+            <value>The date default value can be set to a calendar offset.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.Select">
+            <summary>
+            The Select for this var if a select var. null if not a select var.
+            </summary>
+            <value>The Select for this var if a select var. null if not a select var.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.Variable.SelectFormat">
+            <summary>
+            The Select format for this var if a select var. null if not a select var.
+            </summary>
+            <value>The Select format for this var if a select var. null if not a select var.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Variable.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Variable.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Variable.Equals(WindwardRestApi.src.Model.Variable)">
+            <summary>
+            Returns true if Variable instances are equal
+            </summary>
+            <param name="input">Instance of Variable to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Variable.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.VariableValue">
+            <summary>
+            A value in the TemplateVar. Used for default and allowed values. Also used for the value of a parameter.
+            </summary>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.VariableValue.ValueReferenceEnum">
+            <summary>
+            What the value is returning.
+            </summary>
+            <value>What the value is returning.</value>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.VariableValue.ValueReferenceEnum.Literal">
+            <summary>
+            Enum Literal for value: literal
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.VariableValue.ValueReferenceEnum.Paramvalue">
+            <summary>
+            Enum Paramvalue for value: param_value
+            </summary>
+        </member>
+        <member name="F:WindwardRestApi.src.Model.VariableValue.ValueReferenceEnum.Select">
+            <summary>
+            Enum Select for value: select
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VariableValue.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.VariableValue" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VariableValue.ValueReference">
+            <summary>
+            What the value is returning.
+            </summary>
+            <value>What the value is returning.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VariableValue.Label">
+            <summary>
+            The display text for a value.
+            </summary>
+            <value>The display text for a value.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VariableValue.Name">
+            <summary>
+            The name of this value.
+            </summary>
+            <value>The name of this value.</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VariableValue.Value">
+            <summary>
+            The value.
+            </summary>
+            <value>The value.</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VariableValue.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VariableValue.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VariableValue.Equals(WindwardRestApi.src.Model.VariableValue)">
+            <summary>
+            Returns true if VariableValue instances are equal
+            </summary>
+            <param name="input">Instance of VariableValue to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VariableValue.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.VersionInfo">
+            <summary>
+            APIVersion
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VersionInfo.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.VersionInfo" /> class.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VersionInfo.ServiceVersion">
+            <summary>
+            The REST Engine service version
+            </summary>
+            <value>The Engine service version</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VersionInfo.EngineVersion">
+            <summary>
+            The Reporting Engine version
+            </summary>
+            <value>The Reporting Engine version</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VersionInfo.ApiVersion">
+            <summary>
+            The API version. For major.minor.revision.build: A change in build is cosmetic, documentation, etc. A change in
+            revision is either an addition or fixing something that was broken. A change in minor changes the API to a minor
+            extent. And a change in major is a significant change to the API.
+            </summary>
+            <value>The Reporting Engine version</value>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VersionInfo.ToString">
+            <summary>
+            Returns the string presentation of the object
+            </summary>
+            <returns>String presentation of the object</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VersionInfo.Equals(System.Object)">
+            <summary>
+            Returns true if objects are equal
+            </summary>
+            <param name="input">Object to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VersionInfo.Equals(WindwardRestApi.src.Model.VersionInfo)">
+            <summary>
+            Returns true if APIVersion instances are equal
+            </summary>
+            <param name="input">Instance of APIVersion to be compared</param>
+            <returns>Boolean</returns>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.VersionInfo.GetHashCode">
+            <summary>
+            Gets the hash code
+            </summary>
+            <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Xml_10DataSource">
+            <summary>
+            An XML 1.0 (.Net runtime) datasource to apply to a template. This can include datasets built from this datasource. Used as
+            part of a document generation request. We strongly recommend you use Xml_<b>2</b>0DataSource instead.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Xml_10DataSource.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the XML file.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the XML file.</param>
+            <param name="schemaConnectionString">The connection string to the XSD file. null if no schema.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Xml_10DataSource.#ctor(System.String,System.Byte[],System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when passing up the XML file.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="data">The XML file.</param>
+            <param name="schemaData">The XSD file. null if no schema.</param>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.Xml_20DataSource">
+            <summary>
+            An XML 2.0 (Saxon) datasource to apply to a template. This can include datasets built from this datasource. Used as part of a document generation request.
+            </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Xml_20DataSource.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when using connection strings to connect to the XML file.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="connectionString">The connection string to the XML file.</param>
+            <param name="schemaConnectionString">The connection string to the XSD file. null if no schema.</param>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.Xml_20DataSource.#ctor(System.String,System.Byte[],System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.DataSource" /> class. Use this when passing up the XML file.
+            </summary>
+            <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
+            <param name="data">The XML file.</param>
+            <param name="schemaData">The XSD file. null if no schema.</param>
+        </member>
+    </members>
+</doc>

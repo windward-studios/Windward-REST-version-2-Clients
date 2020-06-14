@@ -1,0 +1,1066 @@
+openapi: 3.0.0
+info:
+  title: Windward RESTFul API
+  description: The Document Generation Engine for RESTful (the Engine) API is used
+    to provide embedding applications the ability to interact with the Engine server
+    installed at your site. The API provides the means to send JSON or XML requests
+    to the Engine, e.g. a document template and URL to a data source; and to receive
+    JSON or XML responses from the Engine, e.g. output generated from a document template.
+  version: "2.0"
+servers:
+- url: http://localhost
+  description: Your local instance of the RESTful engine
+tags:
+- name: Status
+  description: Gives the status and metadata of the current instance of the RESTful
+    API.
+- name: DocumentGeneration
+  description: Windward RESTful Document Generation Engine API Reference
+  externalDocs:
+    url: https://ohana.windwardstudios.com/m/79043/l/1143629-16-5-0-report-engine-for-restful-api-reference
+paths:
+  /v2/version:
+    get:
+      tags:
+      - Status
+      summary: Get the version numbers of the Engine service and underlying DocGen
+        Engine.
+      description: Get the version numbers of the Engine service and underlying DocGen
+        Engine.
+      responses:
+        "200":
+          description: An XML response detailing the version numbers of the Engine
+            service and underlying DocGen Engine.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/VersionInfo'
+  /v2/document:
+    post:
+      tags:
+      - Documents
+      summary: Generate output from a document template. All desired output generation
+        parameters should be coded within the request’s body.
+      description: 'Send this POST request with the Content-Type: application/xml
+        header.'
+      parameters:
+      - name: X-WINDWARD-LICENSE
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: This simple request body will return the template's output in
+          a response body. It includes the URIs of the document template and data
+          source(s); the data source nickname(s); the data source type(s); and the
+          output format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Template'
+        required: true
+      responses:
+        "202":
+          description: The Engine delivers the GUID for this request that will be
+            processed asynchronously.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Document'
+        "500":
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/document/{GUID}:
+    get:
+      tags:
+      - Documents
+      summary: Retrieve an asynchronously generated document using its GUID
+      description: Retrieve output who's generation is now complete. GUID was returned
+        by a previous asynchronous POST request.
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: 'The Engine delivers output from a template as a Base64-encoded
+            string within a response body. To receive an XML response body use the
+            Accept: application/xml header in the POST request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Document'
+        "201":
+          description: If the output generation is still in progress
+        "202":
+          description: If the output generation has not yet started
+        "404":
+          description: If the requested output doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+    delete:
+      tags:
+      - Documents
+      summary: Delete an asynchronously generated document using its GUID
+      description: Delete the previously asynchronously-generated output
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found- if the requested document does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/document/{GUID}/status:
+    get:
+      tags:
+      - Documents
+      summary: Get the status of an asynchronous request to generate a document using
+        its GUID
+      description: Get the status of asynchronously-generated output
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "201":
+          description: If the output generation is still in progress
+        "202":
+          description: If the output generation has not yet started
+        "302":
+          description: The output is ready
+        "404":
+          description: The requested output does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/metrics:
+    post:
+      tags:
+      - Status
+      summary: Returns information stored in the template including data source(s),
+        input parameter(s), file type and other information.
+      description: Returns information stored in the template including data source(s),
+        input parameter(s), file type and other information.
+      parameters:
+      - name: X-WINDWARD-LICENSE
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: A RESTFul Engine compatible template must be specified. Either
+          the Data or URI field is required.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Template'
+        required: true
+      responses:
+        "202":
+          description: An XML reponse returning information stored in the template
+            including data source, input parameters, file type and other information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+        "500":
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/metrics/{GUID}:
+    get:
+      tags:
+      - Documents
+      summary: Retrieve an asynchronously generated metrics using its GUID
+      description: Retrieve output generated asynchronously. GUID was returned by
+        a previous asynchronous POST request.
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: 'The Engine delivers the metrics from a template as a Base64-encoded
+            string within a response body. To receive an XML response body use the
+            Accept: application/xml header in the POST request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+        "201":
+          description: If the output generation is still in progress
+        "202":
+          description: If the output generation has not yet started
+        "404":
+          description: If the requested output doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+    delete:
+      tags:
+      - Documents
+      summary: Delete an asynchronously generated metrics using its GUID
+      description: Delete the previously asynchronously-generated metrics
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found- if the requested metrics does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/metrics/{GUID}/status:
+    get:
+      tags:
+      - Documents
+      summary: Get the status of an asynchronous request to generate metrics using
+        its GUID
+      description: Get the status of asynchronously-generated metrics
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "201":
+          description: If the metrics generation is still in progress
+        "202":
+          description: If the metrics generation has not yet started
+        "302":
+          description: The metrics is ready
+        "404":
+          description: The requested metrics does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured during metrics generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/tagtree:
+    post:
+      tags:
+      - Status
+      summary: Returns a tree structure of all tags in the template.
+      description: Returns a tree structure of all tags in the template. This is an
+        XML file.
+      parameters:
+      - name: X-WINDWARD-LICENSE
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: A RESTFul Engine compatible template must be specified. Either
+          the Data or URI field is required.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Template'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Template'
+        required: true
+      responses:
+        "202":
+          description: An XML reponse returning information stored in the template
+            including data source, input parameters, file type and other information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagTree'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/TagTree'
+        "500":
+          description: An error occured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/tagtree/{GUID}:
+    get:
+      tags:
+      - Documents
+      summary: Retrieve an asynchronously generated tag tree using its GUID
+      description: Retrieve tag tree generated asynchronously. GUID was returned by
+        a previous asynchronous POST request.
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: 'The Engine delivers the tag tree from a template as a Base64-encoded
+            string within a response body. To receive an XML response body use the
+            Accept: application/xml header in the POST request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagTree'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/TagTree'
+        "201":
+          description: If the output generation is still in progress
+        "202":
+          description: If the output generation has not yet started
+        "404":
+          description: If the requested output doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+    delete:
+      tags:
+      - Documents
+      summary: Delete an asynchronously generated tag tree using its GUID
+      description: Delete the previously asynchronously-generated tag tree
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found- if the requested tag tree does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured generating the output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+  /v2/tagtree/{GUID}/status:
+    get:
+      tags:
+      - Documents
+      summary: Get the status of an asynchronous request to generate a tag tree using
+        its GUID
+      description: Get the status of asynchronously-generated tag tree
+      parameters:
+      - name: GUID
+        in: path
+        description: Unique ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 36
+          type: string
+      responses:
+        "201":
+          description: If the tag tree generation is still in progress
+        "202":
+          description: If the tag tree generation has not yet started
+        "302":
+          description: The tag tree is ready
+        "404":
+          description: The requested tag tree does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+        "500":
+          description: An error occured during tag tree generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServiceError'
+components:
+  schemas:
+    DataSet:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The dataset name. Used as the datasource name when applying
+            to a template.
+        Query:
+          type: string
+          description: The query that defines the dataset. This query is run against
+            the parent's datasource.
+      description: A dataset that is part of a datasource. This is a member of this
+        dataset's parent datasource. Used as part of a document generation request.
+    DataSetProfile:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The name used to reference this dataset.
+        Select:
+          type: string
+          description: The select of this dataset.
+        Properties:
+          type: array
+          description: All information defining this dataset as a collection of properties.
+          items:
+            $ref: '#/components/schemas/Entry'
+      description: The full profile of a dataset. Returned as part of a template's
+        metrics.
+    DataSourceProfile:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The name used to reference this datasource.
+        RootPath:
+          type: string
+          description: The root path set for any relative files accessed by this datasource.
+        VendorType:
+          type: string
+          description: The datasource vendor type.
+          enum:
+          - json
+          - odata
+          - salesforce
+          - sql
+          - xml
+          - xml2
+        Properties:
+          type: array
+          description: All information defining this dataset as a collection of properties.
+          items:
+            $ref: '#/components/schemas/Entry'
+        Datasets:
+          type: array
+          description: The datasets for this datasource.
+          items:
+            $ref: '#/components/schemas/DataSetProfile'
+      description: The full profile of a datasource. Returned as part of a template's
+        metrics.
+    Datasource:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The datasource name which maps to the datasource attribute
+            in tags.
+        Type:
+          type: string
+          description: A type of this data source.
+          enum:
+          - sql
+          - xml
+          - xml2
+          - json
+          - odata
+          - salesforce
+          - salesforceoauth
+        ClassName:
+          type: string
+          description: The ADO.NET connector classname. null for other types.
+          example: System.Data.SqlClient
+        ConnectionString:
+          type: string
+          description: The connection string to the datasource. null if passing in
+            the Data property.
+        SchemaConnectionString:
+          type: string
+          description: If an XSD file is used with your XML data source use this or
+            SchemaData. Location of external XSD file.
+        Data:
+          type: string
+          description: The actual data (JSON and XML only). Used when passing up the
+            datasource as the actual data file. null if passing in the ConnectionString
+            property.
+          format: base64
+        SchemaData:
+          type: string
+          description: If an XSD file is used with your XML data source use this or
+            SchemaUri. Embed the XSD file as a Base64-encoded string.
+          format: base64
+        Datasets:
+          type: array
+          description: The datasets created on this datasource.
+          items:
+            $ref: '#/components/schemas/DataSet'
+      description: A datasource to apply to a template. This can include datasets
+        built from this datasource. Used as part of a document generation request.
+    Document:
+      type: object
+      properties:
+        Guid:
+          maxLength: 36
+          type: string
+          description: The unique identifier for this request.
+        Data:
+          type: string
+          description: The generated document as a single file in the user specified
+            format. If this is populated Pages will be null.
+          format: base64
+        Pages:
+          type: string
+          description: The generated document as a distinct file per page in the user
+            specified format. If this is populated Data will be null. This is produced
+            by the image document generator and by the HTML document generator when
+            it is in per page mode.
+          format: base64
+        NumberOfPages:
+          type: integer
+          description: The number of pages in the generated document.
+          format: int32
+        Tag:
+          type: string
+          description: Anything you want. This is passed in to the repository & job
+            handlers and is set in the final generated document object. The RESTful
+            engine ignores this setting, it is for the caller's use.
+        ImportInfo:
+          type: array
+          description: The info on each import processed generating the document.
+            The list is populating only if the ImportInfo enabled.
+          items:
+            $ref: '#/components/schemas/ImportMetrics'
+        Errors:
+          type: array
+          description: Contains a list of issues (errors and warnings) found during
+            the document generation. The list is populating only if the error handling
+            and verify is enabled.
+          items:
+            $ref: '#/components/schemas/Issue'
+    Entry:
+      type: object
+      properties:
+        Key:
+          type: string
+          description: The key (name) of the property.
+        Value:
+          type: string
+          description: The value of the property.
+      description: A key value pair used in the data returned from the TagTree and
+        Metrics for properties.
+    ImportMetrics:
+      type: object
+      properties:
+        Type:
+          type: string
+          description: The type of imported file.
+        Tag:
+          type: string
+          description: The full import tag that imports this file.
+        Filename:
+          type: string
+          description: The filename of the file imported.
+        Children:
+          type: array
+          description: The child imports of this imported template.
+          items:
+            $ref: '#/components/schemas/ImportMetrics'
+      description: The info about an import processed generating the document.
+    Issue:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: A textual description of this issue.
+        IsError:
+          type: boolean
+          description: True if this issue is an error.
+        IsWarning:
+          type: boolean
+          description: True if this issue is a warning.
+        IssueType:
+          type: string
+          description: The .Net engine Issue.IssueType.
+          enum:
+          - Type
+          - Formatting
+          - Select
+          - NodeDoesNotExist
+          - NodeNull
+          - Verify
+        Tag:
+          type: string
+          description: The tag that led to this issue. This is the tag from the source
+            template.
+      description: An issue found during the document generation.  Issues are creating
+        if the error handling and verify functionality is enabled. The issue represents
+        an error or a warning.
+    Metrics:
+      type: object
+      properties:
+        Guid:
+          maxLength: 36
+          type: string
+          description: The guid of this async job.
+        Tag:
+          type: string
+          description: Anything you want. This is passed from the Template to the
+            repository & job handlers and is set in this final generated Metrics object.
+            The RESTful engine ignores this setting, it is for the caller's use.
+        TemplateType:
+          type: string
+          description: The format of the template as a .Net Engine Report.TEMPLATE_TYPE.
+          enum:
+          - UNKNOWN
+          - DOCX
+          - DOCM
+          - HTML
+          - PPTX
+          - PPTM
+          - XLSX
+          - XLSM
+        Datasources:
+          type: array
+          description: All datasources that must be processed for this template.
+          items:
+            type: string
+        Vars:
+          type: array
+          description: All vars that must be defined by a caller in the template.
+          items:
+            type: string
+        Variables:
+          type: array
+          description: All of the template variables defined in the metadata.
+          items:
+            $ref: '#/components/schemas/Variable'
+        DatasourceProfiles:
+          type: array
+          description: The child imports of this imported template.
+          items:
+            $ref: '#/components/schemas/DataSourceProfile'
+        AutotagVersion:
+          type: string
+          description: The version of the metadata. null if no metadata.
+      description: The metrics from a template. This is the metadata stored in the
+        template and within the tags.
+    Parameter:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: Name of the parameter (the var in ${var}).
+        Value:
+          type: object
+          description: The Value of the parameter.
+      description: A parameter passed to the engine to be referenced using a ${var}.
+    Property:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The name of the property.
+        Value:
+          type: string
+          description: The value of the property.
+      description: A property set at the individual document generation level.
+    ServiceError:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: The exception message.
+        Type:
+          type: string
+          description: The exception type.
+        InnerError:
+          $ref: '#/components/schemas/ServiceError'
+      description: An exception that occured attempting to execute a request.
+    TagTree:
+      type: object
+      properties:
+        Guid:
+          maxLength: 36
+          type: string
+          description: The guid of this async job.
+        Tag:
+          type: string
+          description: Anything you want. This is set in the Template and passed in
+            to the repository & job handlers and is set in the final generated TagTree
+            object. The RESTful engine ignores this setting, it is for the caller's
+            use.
+        Xml:
+          type: string
+          description: The tag tree which is an XML document.
+          format: base64
+      description: The generated tag tree we are sending back to the client.
+    Template:
+      type: object
+      properties:
+        Callback:
+          type: string
+          description: If set, this url will be called with a POST when a job completes.
+            If the text "{guid}" is in the url, that text will be replaced with the
+            Guid for the callback.
+        OutputFormat:
+          type: string
+          description: Generate the document in the provided format.
+          enum:
+          - pdf
+          - docx
+          - xlsx
+          - pptx
+          - html
+          - prn
+          - csv
+          - rtf
+          - jpg
+          - png
+          - svg
+          - eps
+          - bmp
+          - gif
+        Data:
+          type: string
+          description: The source of the template- embedded or external. Embed template
+            as a Base64-encoded string.
+          format: base64
+        Uri:
+          type: string
+          description: Set this to provide the template as a connection string of
+            the template's location.
+        Format:
+          type: string
+          description: Format of the template. Auto-determined if not provided.
+          enum:
+          - docx
+          - html
+          - xlsx
+          - pptx
+        Properties:
+          type: array
+          description: Windward properties for this document. These override any properties
+            set in the configuration file on the server side.
+          items:
+            $ref: '#/components/schemas/Property'
+        Parameters:
+          type: array
+          description: A set of input parameters for this document. The parameters
+            are global and shared among all data sources.
+          items:
+            $ref: '#/components/schemas/Parameter'
+        Datasources:
+          type: array
+          description: The datasources to apply to the template. The datasources are
+            applied simultaneously.
+          items:
+            $ref: '#/components/schemas/Datasource'
+        Tag:
+          type: string
+          description: Anything you want. This is passed in to the repository & job
+            handlers and is set in the final generated document object. The RESTful
+            engine ignores this setting, it is for the caller's use.
+        TrackImports:
+          type: boolean
+          description: Return all imports with the generated document.
+        TrackErrors:
+          maximum: 3
+          minimum: 0
+          type: integer
+          description: Enable or disable the error handling and verify functionality.
+        MainPrinter:
+          type: string
+          description: If you are using printer output use to specify main printer.
+            Printer must be recognized by Network
+        FirstPagePrinter:
+          type: string
+          description: Set first page printer if main printer is already set
+        PrinterJobName:
+          type: string
+          description: Assign print job name
+        PrintCopies:
+          type: integer
+          description: Set number of copies to print
+        PrintDuplex:
+          type: string
+          description: Selects the printer duplex mode.  Only if supported by the
+            printer.
+    Variable:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: The name of the variable.
+        Description:
+          type: string
+          description: The default value of the variable, null if undefined.
+        Type:
+          type: string
+          description: The type of variable given in Value.
+        Required:
+          type: boolean
+          description: true if the variable is required for the template to generate.
+        AllowAll:
+          type: boolean
+          description: Can return all values for this select variable.
+        AllowList:
+          type: boolean
+          description: Can return a list of values for this select variable.
+        AllowFilter:
+          type: boolean
+          description: Can set a filter for values for this select variable.
+        AllowSort:
+          type: boolean
+          description: Can sort values for this select variable.
+        AutoMetadata:
+          type: string
+          description: If this is an auto-select, this is the metadata for the select.
+            For SQL this is [dbo.]table.column using the raw values (no surrounding
+            spaces) and for XML it is the full XPath to that node.
+        DefaultValues:
+          type: array
+          description: The default values for this var. Can be length 0 (which means
+            no default).
+          items:
+            $ref: '#/components/schemas/VariableValue'
+        AllowedValues:
+          type: array
+          description: The allowed values for this var. Can be length 0 (which means
+            anything is allowed OR the list was too long).
+          items:
+            $ref: '#/components/schemas/VariableValue'
+        Datasource:
+          type: string
+          description: The name of the datasource for the select.
+        CalOffset:
+          type: string
+          description: The date default value can be set to a calendar offset.
+        Select:
+          type: string
+          description: The Select for this var if a select var. null if not a select
+            var.
+        SelectFormat:
+          type: string
+          description: The Select format for this var if a select var. null if not
+            a select var.
+      description: A var in a template that must be defined before running it.
+    VariableValue:
+      type: object
+      properties:
+        Label:
+          type: string
+          description: The display text for a value.
+        Name:
+          type: string
+          description: The name of this value.
+        Value:
+          type: string
+          description: The value.
+        ValueReference:
+          type: string
+          description: What the value is returning.
+          enum:
+          - literal
+          - param_value
+          - select
+      description: A value in the TemplateVar. Used for default and allowed values.
+        Also used for the value of a parameter.
+    VersionInfo:
+      type: object
+      properties:
+        ServiceVersion:
+          type: string
+          description: The REST Engine service version
+        EngineVersion:
+          type: string
+          description: The Document Generation Engine version
+        ApiVersion:
+          type: string
+          description: The API version
+      example:
+        ServiceVersion: 20.2.288.0
+        EngineVersion: 20.2.288.0
+        ApiVersion: 2.0.0.1
+      xml:
+        name: Version
