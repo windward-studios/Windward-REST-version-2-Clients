@@ -48,7 +48,7 @@
     </div>
     <div id="i-header-content" class="i-header-content">
         <!--DXMETADATA start type="LogoImage" --><!--DXMETADATA end-->
-            <div class="i-project-title"><!--DXMETADATA start type="ProjectTitle" -->The Windward REST Engine .Net Standard Client API<!--DXMETADATA end--></div>
+            <div class="i-project-title"><!--DXMETADATA start type="ProjectTitle" -->Windward REST .Net Standard 2.0 Client<!--DXMETADATA end--></div>
         <div class="i-page-title"><div class="i-page-title-text"><!--DXMETADATA start type="ItemTitle" -->WindwardRestApi.src.Api Namespace<!--DXMETADATA end--></div></div>
     </div>
     <div id="i-after-header-content" class="i-after-header-content">
@@ -64,9 +64,13 @@
     <div id="i-body-content" class="i-body-content">
         <!--DXMETADATA start type="Description" source="Item" format="<div class=""i-description-content"">%%description%%</div>" --><!--DXMETADATA end -->
             <!--DXMETADATA start type="FilteredItemList" scrap="MODULE_LIST" namespace="class" source="Item" filter="" format="%%scrap:name=_COLLAPSIBLE_HEADER,idprefix=class,caption=$$Classes$$%%%%filtereditemlist%%</div>" --><div class="i-section-heading" id="i-class-section-heading"><span class="i-section-heading-icon"><!-- --></span><span class="i-section-heading-text">Classes</span></div><div id="i-class-section-content" class="i-section-content"><table class="i-filtered-item-list"><tr><th>&nbsp;</th><th>Class</th><th>Description</th></tr>
-<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.ApiException.html">ApiException</a> </td><td class="i-description">&nbsp;</td></tr>
-<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.ServerException.html">ServerException</a> </td><td class="i-description">&nbsp;</td></tr>
-<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.WindwardClient.html">WindwardClient</a> </td><td class="i-description">&nbsp;</td></tr>
+<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.ApiException.html">ApiException</a> </td><td class="i-description">
+            Any error that is in the client side of this system. This includes unexpected return codes on a call.
+            </td></tr>
+<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.ServerException.html">ServerException</a> </td><td class="i-description">
+            Any error returned from the server.
+            </td></tr>
+<tr><td class="i-image"><img alt="Class" src="template/packages/core-dotnet/images/Class.png"></td><td class='i-link'><a href="WindwardRestApi~WindwardRestApi.src.Api.WindwardClient.html">WindwardClient</a> </td><td class="i-description">All calls to the Windward RESTful Engine are made by this object. All calls are async. In addition all operations performed by the RESTful engine are async too so for most calls you will make a call to submit a job, then make call(s) to get the status of the job, then a call to get the results of the job, and finally a call to delete the job.<BR>On an error at the server end, the error will be returned by this client's call throwing an exception.<BR>Create a singleton on this object and reuse it. <B>Do not put it in a using(...) or create/dispose of it regularly.</B> This wraps an HttpClient and while HttpClient is disposable (and therefore this class is), you will burn up connections and other resources with that approach. This object can be used concurrently and is thread safe.<BR>This class uses log4net, but does not initialize it. It assumes you have initialized it in the manner you prefer.</td></tr>
 </table></div><!--DXMETADATA end -->
             <!--DXMETADATA start type="FilteredItemList" scrap="MODULE_LIST" namespace="interface" source="Item" filter="" format="%%scrap:name=_COLLAPSIBLE_HEADER,idprefix=interface,caption=$$Interfaces$$%%%%filtereditemlist%%</div>" --><!--DXMETADATA end -->
             <!--DXMETADATA start type="FilteredItemList" scrap="MODULE_LIST" namespace="structure" source="Item" filter="" format="%%scrap:name=_COLLAPSIBLE_HEADER,idprefix=structure,caption=$$Structures$$%%%%filtereditemlist%%</div>" --><!--DXMETADATA end -->
@@ -81,7 +85,7 @@
     </div>
     <div id="i-footer-content" class="i-footer-content">
         <!--DXMETADATA start type="Scrap" condition="communityenabled" name="_COMMUNITY_FOOTER" --><!--DXMETADATA end -->
-<!--DXMETADATA start type="Variable" name="CopyrightNotice" format="<p>&nbsp;</p><p>&nbsp;</p><hr style=""height: 1px"" /><p>%%variable%%</p>" --><p>&nbsp;</p><p>&nbsp;</p><hr style="height: 1px" /><p>Copyright (c) 2020 by Windward Studios, Inc. All Rights Reserved</p><!--DXMETADATA end -->
+<!--DXMETADATA start type="Variable" name="CopyrightNotice" format="<p>&nbsp;</p><p>&nbsp;</p><hr style=""height: 1px"" /><p>%%variable%%</p>" --><p>&nbsp;</p><p>&nbsp;</p><hr style="height: 1px" /><p>Copyright (c) 2020 by <a href="https://www.WindwardStudios.com">Windward Studios, Inc.</a> All Rights Reserved</p><!--DXMETADATA end -->
 <!--DXMETADATA start type="Variable" name="FeedbackLink" format="" --><a href="mailto:support@windward.net?subject=.Net REST Client Documentation Feedback: WindwardRestApi~WindwardRestApi.src.Api_namespace.html">Send Feedback</a><!--DXMETADATA end-->
     </div>
     
