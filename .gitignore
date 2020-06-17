@@ -1,0 +1,5 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.Net Standard 2.0/samples/RunReport/.vs/RunReport/v16/Server/sqlite3
