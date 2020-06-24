@@ -935,7 +935,7 @@ namespace RunReport
 				return Convert.ToDouble(keyValue.Substring(2));
 			if (keyValue.StartsWith("D'"))
 				return Convert.ToDateTime(keyValue.Substring(2), (locale == null ? CultureInfo.CurrentCulture : new CultureInfo(locale)));
-			return keyValue;
+			return keyValue.Replace("\\n", "\n").Replace("\\t", "\t");
 		}
 	}
 
