@@ -1156,7 +1156,7 @@ public class RunReport {
 				;
 				throw new IllegalArgumentException("Could not parse yyyy-MM-dd[Thh:mm:ss] date from " + value.substring(2));
 			}
-			return value;
+			return value.replace("\\n", "\n").replace("\\t", "\t");
 		}
 	}
 

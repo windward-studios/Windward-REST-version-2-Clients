@@ -22,7 +22,8 @@
         </configuration>
       </plugin>
     </plugins>
-  </build>  <dependencies>
+  </build>
+  <dependencies>
     <dependency>
       <groupId>net.windward</groupId>
       <artifactId>WindwardRESTJava8Client</artifactId>
