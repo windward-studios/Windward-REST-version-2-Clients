@@ -8,5 +8,31 @@
     <artifactId>runreport</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <repositories>
+        <repository>
+            <id>windward-maven-repo</id>
+            <name>windward-maven-repo</name>
+            <url>https://windward.mycloudrepo.io/public/repositories/windward-libs</url>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>net.windward</groupId>
+            <artifactId>WindwardRESTJava8Client</artifactId>
+            <version>1.0.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

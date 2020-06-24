@@ -6,4 +6,4 @@
 /.Net Standard 2.0/samples/RunReport/obj
 
 **/.idea/workspace.xml
-/Java 8/target
+**/target/
