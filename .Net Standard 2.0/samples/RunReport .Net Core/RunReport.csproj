@@ -7,7 +7,7 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <Authors>Windward</Authors>
     <Company>Windward Studios, Inc.</Company>
-    <Product>REST Engline C# client RunReport</Product>
+    <Product>REST Engine C# client RunReport</Product>
     <Copyright>Copyright (c) 2020 by Windward Studios, All Rights Reserved</Copyright>
   </PropertyGroup>
 
