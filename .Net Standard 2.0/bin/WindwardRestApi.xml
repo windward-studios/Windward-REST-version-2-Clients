@@ -416,13 +416,15 @@
         </member>
         <member name="P:WindwardRestApi.src.Model.DataSource.ConnectionString">
             <summary>
-            The connection string to the datasource. null if passing in the Data property.
+            The connection string to the datasource. null if passing in the Data property. This is not just a filename.
+            At a minimum it is "Url=filename;"
             </summary>
             <value>The connection string to the datasource. null if passing in the Data property.</value>
         </member>
         <member name="P:WindwardRestApi.src.Model.DataSource.SchemaConnectionString">
             <summary>
             If an XSD file is used with your XML data source use this or SchemaData. Location of external XSD file.
+            This is not just a filename. At a minimum it is "Url=filename;"
             </summary>
             <value>If an XSD file is used with your XML data source use this or SchemaData. Location of external XSD file.</value>
         </member>
@@ -1032,8 +1034,9 @@
             <summary>
             Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Property" /> class.
             </summary>
-            <param name="name">The name of the property..</param>
-            <param name="value">The value of the property..</param>
+            <param name="name">The name of the property.</param>
+            <param name="value">The value of the property. You can pass any primitive, null, a
+            DateTime, or DateTimeOffset. You cannot pass lists or arrays.</param>
         </member>
         <member name="M:WindwardRestApi.src.Model.Parameter.#ctor">
             <summary>
@@ -1046,7 +1049,7 @@
             </summary>
             <value>Name of the parameter (the var in ${var}).</value>
         </member>
-        <member name="P:WindwardRestApi.src.Model.Parameter.Value">
+        <member name="P:WindwardRestApi.src.Model.Parameter.WrappedValue">
             <summary>
             The Value of the parameter.
             </summary>
@@ -1077,6 +1080,46 @@
             Gets the hash code
             </summary>
             <returns>Hash code</returns>
+        </member>
+        <member name="T:WindwardRestApi.src.Model.ParamValue">
+             <summary>
+             To (de)serialize a parameter value, both endpoints need to be able to handle it. Therefore we
+             can't use the type object. Some objects just aren't serializable (like FileStream). Others don't
+             have the same thing at each end (Java ZonedDateTime vs .Net DateTimeOffset).
+             So we have to pass these as a string and type and then build up the object from that.
+            
+             The deserialization sets the type and raw value but the engine never has reason to read those.
+             The engine just needs the converted back object value.
+             </summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ParamValue.#ctor">
+            <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+        </member>
+        <member name="M:WindwardRestApi.src.Model.ParamValue.#ctor(System.Object)">
+            <summary>Initializes a new instance of the <see cref="T:System.Object" /> class.</summary>
+            <param name="varValue">The value for this parameter. You can pass any primitive, null, a
+            DateTime, or DateTimeOffset. You cannot pass lists or arrays.</param>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ParamValue.ParamType">
+             <summary>
+             What type the raw value needs to be converted back to. Note that Number will use the most
+             sensible type, but will always use double instead of float if the value has a fractional
+             component.
+            
+             And this can't be an enum because it has to be passed as a string and C# doesn't do string enums.
+            
+             Allowed values: null, string, boolean, number (integer or float), datetime (WindwardDateTime)
+             </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ParamValue.RawValue">
+            <summary>
+            The parameter value as a string.
+            </summary>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.ParamValue.Value">
+            <summary>
+            Not a DataMember! This converts the passed parameter to the object of the expected type.
+            </summary>
         </member>
         <member name="T:WindwardRestApi.src.Model.Property">
             <summary>
@@ -1388,7 +1431,8 @@
             Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class.
             </summary>
             <param name="outputFormat">Generate the report in the provided format.</param>
-            <param name="uri">Set this to provide the template as a connection string of the template's location.</param>
+            <param name="connectionString">Set this to provide the template as a connection string of the template's location.
+            This is not just a filename. At a minimum it is "Url=filename;"</param>
             <param name="format">Format of the template. Auto-determined if not provided.</param>
         </member>
         <member name="M:WindwardRestApi.src.Model.Template.#ctor(WindwardRestApi.src.Model.Template.OutputFormatEnum,System.Byte[],WindwardRestApi.src.Model.Template.FormatEnum)">
@@ -1403,7 +1447,8 @@
             <summary>
             Initializes a new instance of the <see cref="T:WindwardRestApi.src.Model.Template" /> class. For use to get metrics and the tag tree.
             </summary>
-            <param name="uri">Set this to provide the template as a connection string of the template&#39;s location..</param>
+            <param name="connectionString">Set this to provide the template as a connection string of the template's location.
+            This is not just a filename. At a minimum it is "Url=filename;"</param>
             <param name="format">Format of the template. Auto-determined if not provided.</param>
         </member>
         <member name="M:WindwardRestApi.src.Model.Template.#ctor(System.Byte[],WindwardRestApi.src.Model.Template.FormatEnum)">
@@ -1440,9 +1485,10 @@
             </summary>
             <value>The template passed up in the request.</value>
         </member>
-        <member name="P:WindwardRestApi.src.Model.Template.Uri">
+        <member name="P:WindwardRestApi.src.Model.Template.ConnectionString">
             <summary>
-            Set this to provide the template as a connection string of the template's location.
+            Set this to provide the template as a connection string of the template's location. This is not just a filename.
+            At a minimum it is "Url=filename;"
             </summary>
             <value>Set this to provide the template as a connection string of the template&#39;s location.</value>
         </member>
@@ -1713,7 +1759,7 @@
             </summary>
             <value>The name of this value.</value>
         </member>
-        <member name="P:WindwardRestApi.src.Model.VariableValue.Value">
+        <member name="P:WindwardRestApi.src.Model.VariableValue.ParamValue">
             <summary>
             The value.
             </summary>
@@ -1767,13 +1813,19 @@
             </summary>
             <value>The Reporting Engine version</value>
         </member>
-        <member name="P:WindwardRestApi.src.Model.VersionInfo.ApiVersion">
+        <member name="P:WindwardRestApi.src.Model.VersionInfo.ServerApiVersion">
             <summary>
-            The API version. For major.minor.revision.build: A change in build is cosmetic, documentation, etc. A change in
-            revision is either an addition or fixing something that was broken. A change in minor changes the API to a minor
-            extent. And a change in major is a significant change to the API.
+            The API version the server presents. For major.minor.revision: A change in revision is either an addition or
+            fixing something that was broken. A change in minor changes the API to a minor extent and can break the client.
+            And a change in major is a significant change to the API.
             </summary>
             <value>The Reporting Engine version</value>
+        </member>
+        <member name="P:WindwardRestApi.src.Model.VersionInfo.ClientApiVersion">
+            <summary>
+            The API version this client is implemented for. The major.minor must match the ServerApiVersion major.minor or
+            you likely will have problems.
+            </summary>
         </member>
         <member name="M:WindwardRestApi.src.Model.VersionInfo.ToString">
             <summary>
@@ -1843,6 +1895,18 @@
             <param name="name">The datasource name which maps to the datasource attribute in tags.</param>
             <param name="data">The XML file.</param>
             <param name="schemaData">The XSD file. null if no schema.</param>
+        </member>
+        <member name="T:net.windward.VersionNumbers">
+            <summary>Version numbers for Windward Reports and AutoTag</summary>
+        </member>
+        <member name="F:net.windward.VersionNumbers.VERSION_STR">
+            <summary>Version as a full string</summary>
+        </member>
+        <member name="F:net.windward.VersionNumbers.REST_API_VERSION">
+            <summary>
+            The version number of the RESTful engine API. This should never change. The "2.0." part must change if we
+            make a breaking change in the API.
+            </summary>
         </member>
     </members>
 </doc>
