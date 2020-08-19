@@ -1,4 +1,4 @@
-from windwardrestclient.Model import VersionInfo
+from windwardrestapi.Model import VersionInfo
 
 
 class testVersion:

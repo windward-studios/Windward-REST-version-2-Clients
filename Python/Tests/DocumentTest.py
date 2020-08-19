@@ -1,4 +1,4 @@
-from windwardrestclient.Model import Template, Xml_10DataSource
+from windwardrestapi.Model import Template, Xml_10DataSource
 import requests
 import time
 import base64
