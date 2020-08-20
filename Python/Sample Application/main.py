@@ -50,15 +50,6 @@ if __name__ == '__main__':
    'Now we get the document'
    testGetDocument = testClient.getDocument(testDocument.guid)
    print("testGetDocument Guid: ", testGetDocument.guid)
-   
-   'To produce the output file from the client, uncomment the two lines of code bellow. This will output the file to whichever directory you are running this main.py from.'
-   'If you are outputting anything but a docx file, change the file extention in the line below to match appropriatley. EX. if pdf, test.pdf'
-   # with open("test.docx", "wb") as fh:
-   #    fh.write(base64.standard_b64decode(testGetDocument.data))
-   
-   'Delete the document'
-   testDeleteDocument = testClient.deleteDocument(testDocument.guid)
-   print("Document delete status: ", testDeleteDocument)
 
    ############################
           # METRICS #
