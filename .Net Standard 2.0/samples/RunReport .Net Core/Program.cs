@@ -72,7 +72,7 @@ namespace RunReport
 				// run one report
 				if (!cmdLine.IsPerformance)
 				{
-					PerfCounters perfCounters = RunOneReport(cmdLine, args.Length == 2);
+					PerfCounters perfCounters = await RunOneReport(cmdLine, args.Length == 2);
 					PrintPerformanceCounter(startTime, perfCounters, false);
 				}
 				else
