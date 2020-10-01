@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "avsxSiSo+jSTbKykCXbtvYIlEi+9flGsvy2QWz5s6GYhdJLgKFXsGM1i1qBgyzocT2LUXmWZOQ3iTCumz+Crxw==",
+  "success": true,
+  "projectFilePath": "C:\\Windward\\Windward-REST-version-2-Clients-master\\.Net Standard 2.0\\samples\\RunReport\\RunReport.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\log4net\\2.0.8\\log4net.2.0.8.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\system.configuration.configurationmanager\\4.7.0\\system.configuration.configurationmanager.4.7.0.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\system.security.accesscontrol\\4.7.0\\system.security.accesscontrol.4.7.0.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\system.security.permissions\\4.7.0\\system.security.permissions.4.7.0.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\system.security.principal.windows\\4.7.0\\system.security.principal.windows.4.7.0.nupkg.sha512",
+    "C:\\Users\\IanPeterson\\.nuget\\packages\\windwardrestapi\\2.0.0.25\\windwardrestapi.2.0.0.25.nupkg.sha512"
+  ],
+  "logs": []
+}
