@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Console = System.Console;
 using Convert = System.Convert;
@@ -32,7 +33,7 @@ namespace RunReport
 
 		private static readonly ILog logWriter = LogManager.GetLogger(typeof(Program));
 
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 
 			// get connected
@@ -41,7 +42,7 @@ namespace RunReport
 				url += "/";
 			Console.Out.WriteLine($"Connecting to URL {url}");
 			client = new WindwardClient(new Uri(url));
-			VersionInfo version = client.GetVersion().Result;
+			VersionInfo version = await client.GetVersion();
 			Console.Out.WriteLine($"REST server version = {version}");
 
 			// if no arguments, then we list out the usage.
@@ -89,22 +90,19 @@ namespace RunReport
 					ReportWorker[] workers = new ReportWorker[numThreads];
 					for (int ind = 0; ind < numThreads; ind++)
 						workers[ind] = new ReportWorker(ind, new CommandLine(cmdLine));
-					System.Threading.Thread[] threads = new System.Threading.Thread[numThreads];
+					Task[] threads = new Task[numThreads];
 					for (int ind = 0; ind < numThreads; ind++)
-						threads[ind] = new System.Threading.Thread(workers[ind].DoWork);
-					for (int ind = 0; ind < numThreads; ind++)
-						threads[ind].Name = "Report Worker " + ind;
+						threads[ind] = workers[ind].DoWork();
 
-					Console.Out.WriteLine($"Start time: {startTime.ToLongTimeString()}, {numThreads} threads, {cmdLine.NumReports} reports");
+                    Console.Out.WriteLine($"Start time: {startTime.ToLongTimeString()}, {numThreads} threads, {cmdLine.NumReports} reports");
 					Console.Out.WriteLine();
 					for (int ind = 0; ind < numThreads; ind++)
 						threads[ind].Start();
 
 					// we wait
-					for (int ind = 0; ind < numThreads; ind++)
-						threads[ind].Join();
+                    await Task.WhenAll(threads);
 
-					PerfCounters perfCounters = new PerfCounters();
+                    PerfCounters perfCounters = new PerfCounters();
 					for (int ind = 0; ind < numThreads; ind++)
 						perfCounters.Add(workers[ind].perfCounters);
 
@@ -162,12 +160,12 @@ namespace RunReport
 				perfCounters = new PerfCounters();
 			}
 
-			public void DoWork()
+			public async Task DoWork()
 			{
 				while (HasNextReport)
 				{
 					Console.Out.Write($"{threadNum}.");
-					PerfCounters pc = RunOneReport(cmdLine, false);
+					PerfCounters pc = await RunOneReport(cmdLine, false);
 					perfCounters.Add(pc);
 				}
 			}
@@ -176,7 +174,7 @@ namespace RunReport
 		private static readonly string[] extImages = { "bmp", "eps", "gif", "jpg", "png", "svg" };
 		private static readonly string[] extHtmls = { "htm", "html", "xhtml" };
 
-		private static PerfCounters RunOneReport(CommandLine cmdLine, bool preservePodFraming)
+		private static async Task<PerfCounters> RunOneReport(CommandLine cmdLine, bool preservePodFraming)
 		{
 
 			DateTime startTime = DateTime.Now;
@@ -272,7 +270,7 @@ namespace RunReport
 				Console.Out.WriteLine("Calling REST engine to start generating report");
 
 			// we have nothing else to do, so we wait till we get the result.
-			Document document = client.PostDocument(template).Result;
+			Document document = await client.PostDocument(template);
 			string guid = document.Guid;
 
 			if (!cmdLine.IsPerformance)
@@ -280,14 +278,18 @@ namespace RunReport
 
 			// wait for it to complete
 			// instead of this you can use: template.Callback = "http://localhost/alldone/{guid}";
-			while (client.GetDocumentStatus(guid).Result != HttpStatusCode.Found)
-				Thread.Sleep(100);
+            HttpStatusCode status = await client.GetDocumentStatus(guid);
+            while (status == HttpStatusCode.Created || status == HttpStatusCode.Accepted)
+            {
+                await Task.Delay(100);
+                status = await client.GetDocumentStatus(guid);
+            }
 
 			// we have nothing else to do, so we wait till we get the result.
-			document = client.GetDocument(guid).Result;
+			document = await client.GetDocument(guid);
 
 			// delete it off the server
-			client.DeleteDocument(guid);
+			await client.DeleteDocument(guid);
 
 			if (!cmdLine.IsPerformance)
 				Console.Out.WriteLine($"REST Engine has completed job {document.Guid}");
