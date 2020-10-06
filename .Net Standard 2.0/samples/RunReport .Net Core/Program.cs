@@ -258,7 +258,7 @@ namespace RunReport
 						if (!cmdLine.IsPerformance)
 							Console.Out.WriteLine(string.Format("{0} datasource: {1}", dsInfo.SqlDriverInfo.Name,
 								dsInfo.ConnectionString));
-						template.Datasources.Add(new SqlDataSource(dsInfo.Name, dsInfo.ConnectionString, dsInfo.SqlDriverInfo.Classname));
+						template.Datasources.Add(new SqlDataSource(dsInfo.Name, dsInfo.SqlDriverInfo.Classname, dsInfo.ConnectionString));
 						break;
 
 					default:
