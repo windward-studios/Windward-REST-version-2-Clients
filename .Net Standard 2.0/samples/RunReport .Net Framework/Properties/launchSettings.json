@@ -2,8 +2,7 @@
   "profiles": {
     "RunReport": {
       "commandName": "Project",
-      "commandLineArgs": "InvestmentFactSheet.docx report.pdf -xml:XML2 InvestmentFactSheet.xml",
-      "workingDirectory": "C:\\Windward\\CoreTesting"
+      "commandLineArgs": "../../../files/Manufacturing.docx ../../../files/output.docx -xml:MANF_DATA_2009 ../../../files/Manufacturing.xml"
     }
   }
 }

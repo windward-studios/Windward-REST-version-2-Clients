@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright (c) 2020 by Windward Studios, All Rights Reserved")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.0.0.0")]
-[assembly: System.Reflection.AssemblyProductAttribute("REST Engline C# client RunReport")]
+[assembly: System.Reflection.AssemblyProductAttribute("REST Engine C# client RunReport")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RunReport")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.0.0.0")]
 
