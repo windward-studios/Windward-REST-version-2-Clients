@@ -2,8 +2,7 @@
   "profiles": {
     "RunReport": {
       "commandName": "Project",
-      "commandLineArgs": "dave.docx report.pdf -xml:XML2 southwind.xml",
-      "workingDirectory": "c:\\test"
+      "commandLineArgs": "../../../files/Manufacturing.docx ../../../files/output.docx -xml:MANF_DATA_2009 ../../../files/Manufacturing.xml"
     }
   }
 }
